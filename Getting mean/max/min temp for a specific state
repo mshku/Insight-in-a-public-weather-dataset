@@ -1,0 +1,32 @@
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+df=pd.read_csv("mean_temp _Wor.csv")
+
+
+# Create a plot with Seaborn (which as imported as sns)
+plt.figure(figsize=(24,6))
+
+
+p=sns.regplot(data=df, x="thedate", y="mean_max_temp", color="r")
+
+
+plt.savefig("2020_dis3.jpeg",dpi=300)
+
+---------------------------------------------------------------------------------
+
+SELECT 
+  SUM(CAST(temp as Numeric))/COUNT(temp) as mean_mean_temp,
+  SUM(CAST(min as Numeric))/COUNT(min) as mean_min_temp,
+  SUM(CAST(max as Numeric))/COUNT(max) as mean_max_temp,
+  CONCAT(mo,da) as thedate # Get rid of the Year
+FROM
+  weather_data_2020 
+WHERE
+  max != 9999.9 # code for missing data 
+  AND stn = 'place your own cordinates'
+  AND wban = 'place your own cordinates'
+GROUP BY thedate
+ORDER BY thedate
