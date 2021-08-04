@@ -1,0 +1,18 @@
+-- Get nearest weather station by geo coordinates
+with my_location as (
+  SELECT  ST_GEOPOINT() as my_location,
+          'State' as home
+), stations as (
+  SELECT *, ST_GEOPOINT(lon,lat) as latlon_geo
+  FROM data_stations
+)
+
+    SELECT CAST(ST_GEOPOINT() AS String) as my_location, 
+           home,
+           collect_list( 
+              STRUCT(usaf,wban,name,lon,lat,country,state,
+                    ST_DISTANCE(my_location, b.latlon_geo)*0.00062137)
+           ) as stations
+    FROM my_location a, stations b
+    WHERE ST_DWITHIN(my_location, b.latlon_geo, 32187)  --meters = 20 miles
+    GROUP BY my_location, home;
