@@ -1,0 +1,49 @@
+DROP TABLE IF EXISTS SNOW_DAY;
+CREATE TABLE IF NOT EXISTS SNOW_DAY
+AS
+SELECT
+  c AS days,
+  name,
+  country
+FROM (SELECT
+    stn,
+    wban,
+    COUNT(*) c
+  FROM weather_data
+  WHERE snow_ice_pellets='1'
+  GROUP BY stn, wban 
+  ORDER BY
+    c DESC
+  LIMIT
+    20 ) a
+LEFT JOIN data_stations b ON a.stn=b.usaf AND a.wban=b.wban
+WHERE name IS NOT NULL LIMIT 10
+;
+
+-----------------------------------------------------------------
+
+DROP TABLE IF EXISTS WARM_DAY;
+CREATE TABLE IF NOT EXISTS WARM_DAY
+AS
+SELECT
+  max,
+  (max-32)*5/9 celsius,
+  mo,
+  da,
+  state,
+  stn,
+  name
+FROM (
+  SELECT
+    max,
+    mo,
+    da,
+    state,
+    stn,
+    name,
+    ROW_NUMBER() OVER(PARTITION BY state ORDER BY max DESC) rn
+  FROM weather_data a
+  JOIN data_stations b ON a.stn=b.usaf AND a.wban=b.wban
+  WHERE state IS NOT NULL AND max<1000 AND country='US' ) t
+  WHERE rn=1 ORDER BY max DESC
+  ;
