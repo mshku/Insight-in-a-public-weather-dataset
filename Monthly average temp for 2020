@@ -1,0 +1,15 @@
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np;
+
+df=pd.read_csv("temp2.csv")
+
+plt.figure(figsize=(16,4))
+sns.regplot(data=df, x="thedate", y="mean_mean_temp", 
+        x_estimator=np.mean, x_ci="sd", ci=100, 
+        fit_reg=True, lowess=False, 
+        line_kws={'color':'green'})
+
+plt.savefig("2020_dis4.jpeg",dpi=300)
